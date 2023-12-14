@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Replace these values with the specific city, state, and country you want to query
     var cityName = 'Toronto';
-    var stateCode = 'ON';
-    var countryCode = 'CA';
+    var stateCode = '';
+    var countryCode = '';
     const limit = 5;  // You can adjust the limit as needed
 
     // Construct the URL with the variables
