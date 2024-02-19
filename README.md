@@ -5,7 +5,6 @@ Simple Web Weather App
 
 https://coopergriffin.github.io/challengeSix/ Live app link!
 
-
-<img width="1280" alt="Screen Shot 2024-02-19 at 3 25 08 PM" src="https://github.com/coopergriffin/challengeSix/assets/9081896/c64e1640-0250-42bb-a8c9-a20e809dbe23">
+<img width="1257" alt="Screen Shot 2024-02-19 at 3 25 38 PM" src="https://github.com/coopergriffin/challengeSix/assets/9081896/7075075f-227c-462b-a87a-a516ec94409d">
 
 
