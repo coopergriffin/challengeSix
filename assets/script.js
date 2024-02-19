@@ -56,44 +56,60 @@ function displayForecast(data) {
     // Extract necessary information from the API response
     const forecastList = data.list;
   
+    // Clear previous forecast data
+    document.getElementById('forecast').innerHTML = '';
+  
+    // Initialize an object to store forecast data for each day
+    const dailyForecasts = {};
+  
     // Get tomorrow's date
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1); // Increment date by 1 to get tomorrow
     tomorrow.setHours(0, 0, 0, 0); // Set time to start of day (midnight)
   
-    // Clear previous forecast data
-    document.getElementById('forecast').innerHTML = '';
+    // Group forecast data by day, starting from tomorrow
+    forecastList.forEach(forecastData => {
+      // Extract forecast date
+        const forecastDate = new Date(forecastData.dt * 1000);
+      
+      // Skip the current day
+        if (forecastDate.getTime() < tomorrow.getTime()) {
+            return;
+        }
   
-    // Display forecast information for each day starting from tomorrow
-    for (let i = 0; i < forecastList.length; i++) {
-      const forecastData = forecastList[i];
-      const forecastDate = new Date(forecastData.dt * 1000); // Convert timestamp to milliseconds
+      const dayKey = forecastDate.toDateString(); // Use date string as key
   
-      // Skip today's forecast
-      if (forecastDate.getTime() < tomorrow.getTime()) {
-        continue;
-      }
+      // If forecast for this day does not exist, add it to the dailyForecasts object
+        if (!dailyForecasts[dayKey]) {
+            dailyForecasts[dayKey] = forecastData;
+        }
+    });
   
-      const iconCode = forecastData.weather[0].icon;
-      const temperature = forecastData.main.temp;
-      const humidity = forecastData.main.humidity;
-      const windSpeed = forecastData.wind.speed;
-  
-      // Create HTML elements for forecast data
-      const forecastItem = document.createElement('div');
-      forecastItem.classList.add('forecast-item');
-      forecastItem.innerHTML = `
-        <div>${forecastDate.toLocaleDateString()}</div>
-        <img src="http://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
-        <div>Temperature: ${temperature} °C</div>
-        <div>Humidity: ${humidity}%</div>
-        <div>Wind Speed: ${windSpeed} m/s</div>
-      `;
-  
-      // Append forecast item to the forecast container
-      document.getElementById('forecast').appendChild(forecastItem);
-    }
+    // Display forecast information for each day
+    Object.values(dailyForecasts).forEach(forecastData => {
+        const forecastDate = new Date(forecastData.dt * 1000);
+        const iconCode = forecastData.weather[0].icon;
+        const temperature = forecastData.main.temp;
+        const humidity = forecastData.main.humidity;
+        const windSpeed = forecastData.wind.speed;
+    
+        // Create HTML elements for forecast data
+        const forecastItem = document.createElement('div');
+        forecastItem.classList.add('forecast-item');
+        forecastItem.innerHTML = `
+            <div>${forecastDate.toLocaleDateString()}</div>
+            <img src="http://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
+            <div>Temperature: ${temperature} °C</div>
+            <div>Humidity: ${humidity}%</div>
+            <div>Wind Speed: ${windSpeed} m/s</div>
+        `;
+    
+        // Append forecast item to the forecast container
+        document.getElementById('forecast').appendChild(forecastItem);
+    });
 }
+  
+  
   
 
 
