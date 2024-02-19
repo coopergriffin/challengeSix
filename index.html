@@ -2,19 +2,32 @@
 Cooper Griffin 
 Index html file for challenge Six of Carleton Software Development Bootcamp 
 -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website</title>
-    <link rel="stylesheet" href="./assets/style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Weather Dashboard</title>
+	<link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-
-    
-
-    <script src="./assets/script.js"></script>
+	<div class="container">
+		<h1>Weather Dashboard</h1>
+		<form id="searchForm">
+			<input type="text" id="cityInput" placeholder="Enter city name">
+			<button type="submit">Search</button>
+		</form>
+		<div id="currentWeather">
+			<h2 id="cityName"></h2>
+			<p id="currentDate"></p>
+			<img id="weatherIcon" src="" alt="Weather Icon">
+			<p id="temperature"></p>
+			<p id="humidity"></p>
+			<p id="windSpeed"></p>
+		</div>
+		<div id="forecast"></div>
+		<div id="searchHistory"></div>
+	</div>
+	<script src="assets/script.js"></script>
 </body>
 </html>
