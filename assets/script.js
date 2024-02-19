@@ -1,12 +1,12 @@
 // Function to fetch weather data from OpenWeatherMap API
 // Define the API key constant
-const apiKey = '9f2c585f02b8861898b85f73dc78bc2d'; // Replace 'YOUR_API_KEY' with your actual API key
+const apiKey = '9f2c585f02b8861898b85f73dc78bc2d';
 
 
 // Define the base API URL
 const apiUrl = 'https://api.openweathermap.org/data/2.5/';
 
-// Function to fetch current weather data
+// Function to fetch current weather data. Also calls fetch forecast to get forecast data
 function fetchWeather(city) {
 	const currentWeatherUrl = `${apiUrl}weather?q=${city}&units=metric&appid=${apiKey}`;
 
@@ -42,6 +42,7 @@ function fetchForecast(city) {
 
 // Function to display current weather
 function displayCurrentWeather(data) {
+
 	// Extract necessary information from the API response
 	const cityName = data.name;
 	const currentDate = new Date(data.dt * 1000);
@@ -132,7 +133,9 @@ function saveSearchHistoryList(city) {
 
 // Function to display search history
 function displaySearchHistory(history) {
+
 	const searchHistoryList = document.getElementById('searchHistoryList');
+
 	searchHistoryList.innerHTML = '';
 	history.forEach(city => {
 		const li = document.createElement('li');
@@ -146,9 +149,12 @@ function displaySearchHistory(history) {
 
 // Event listener for the search form submission
 document.getElementById('searchForm').addEventListener('submit', function (event) {
+
 	event.preventDefault();
+
 	const cityInput = document.getElementById('cityInput');
 	const city = cityInput.value.trim();
+
 	if (city) {
 		fetchWeather(city);
 		cityInput.value = '';
@@ -157,7 +163,9 @@ document.getElementById('searchForm').addEventListener('submit', function (event
 
 // Display search history on page load
 window.addEventListener('load', function () {
+
 	const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
 	displaySearchHistory(searchHistory);
+
 });
 
