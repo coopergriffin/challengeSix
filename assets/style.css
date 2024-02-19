@@ -1,9 +1,74 @@
 /* assets/style.css */
+/* General styles */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f0f0;
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
 }
 
+.container {
+	display: flex;
+	flex-direction: row;
+}
 
+.search-section {
+	flex: 1;
+	padding: 20px;
+}
+
+.weather-section {
+	flex: 2;
+	padding: 20px;
+}
+
+/* Style for the search form */
+#searchForm {
+	margin-bottom: 10px;
+}
+
+/* Style for the search input */
+#cityInput {
+	padding: 5px;
+	width: 150px;
+	margin-right: 10px;
+}
+
+/* Style for the search button */
+#searchButton {
+	padding: 5px 10px;
+	background-color: #007bff;
+	color: #fff;
+	border: none;
+	cursor: pointer;
+}
+
+/* Style for search history */
+.search-history {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+/* Style for search history items */
+.search-history li {
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+/* Style for the current weather section */
+.current-weather {
+	background-color: #f0f0f0;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+/* Style for the forecast section */
+.forecast {
+	background-color: #e0e0e0;
+	padding: 20px;
+}
+
+/* Style for forecast items */
+.forecast-item {
+	margin-bottom: 10px;
+}

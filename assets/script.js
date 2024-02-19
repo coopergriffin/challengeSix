@@ -1,155 +1,163 @@
 // Function to fetch weather data from OpenWeatherMap API
+// Define the API key constant
+const apiKey = '9f2c585f02b8861898b85f73dc78bc2d'; // Replace 'YOUR_API_KEY' with your actual API key
+
+
+// Define the base API URL
+const apiUrl = 'https://api.openweathermap.org/data/2.5/';
+
+// Function to fetch current weather data
 function fetchWeather(city) {
-	// Your API key from OpenWeatherMap
-	const apiKey = '9f2c585f02b8861898b85f73dc78bc2d';
-	// API endpoint for current weather data
-	const currentWeatherURL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-	// API endpoint for 5-day forecast
-	const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+	const currentWeatherUrl = `${apiUrl}weather?q=${city}&units=metric&appid=${apiKey}`;
 
-	// Fetch current weather data
-	fetch(currentWeatherURL)
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Display current weather information
-            displayCurrentWeather(data);
-        })
-        .catch(error => {
-            console.error('Error fetching current weather:', error);
-        });
-
-	// Fetch 5-day forecast data
-	fetch(forecastURL)
-		.then(response => response.json())
+	fetch(currentWeatherUrl)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Error fetching current weather: ' + response.statusText);
+			}
+			return response.json();
+		})
 		.then(data => {
-			// Display forecast information
-			displayForecast(data);
-		});
+			displayCurrentWeather(data);
+			fetchForecast(city);
+			saveSearchHistoryList(city);
+		})
+		.catch(error => console.error('Error fetching current weather:', error));
 }
 
-// Function to display current weather information
+// Function to fetch forecast data
+function fetchForecast(city) {
+	const forecastUrl = `${apiUrl}forecast?q=${city}&units=metric&appid=${apiKey}`;
+
+	fetch(forecastUrl)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error('Error fetching forecast: ' + response.statusText);
+			}
+			return response.json();
+		})
+		.then(data => displayForecast(data))
+		.catch(error => console.error('Error fetching forecast:', error));
+}
+
+// Function to display current weather
 function displayCurrentWeather(data) {
 	// Extract necessary information from the API response
-    const cityName = data.name;
-	const currentDate = new Date(data.dt * 1000); // Convert timestamp to milliseconds
+	const cityName = data.name;
+	const currentDate = new Date(data.dt * 1000);
 	const iconCode = data.weather[0].icon;
 	const temperature = data.main.temp;
 	const humidity = data.main.humidity;
 	const windSpeed = data.wind.speed;
 
-	// Update HTML elements with current weather data
-	document.getElementById('cityName').textContent = cityName;
-	document.getElementById('currentDate').textContent = currentDate.toLocaleDateString();
-	document.getElementById('weatherIcon').setAttribute('src', `http://openweathermap.org/img/wn/${iconCode}.png`);
-	document.getElementById('temperature').textContent = temperature + " °C";
-	document.getElementById('humidity').textContent = humidity + "%";
-	document.getElementById('windSpeed').textContent = windSpeed + " m/s";
+	// Display current weather information
+	document.getElementById('cityName').textContent = `City: ${cityName}`;
+	document.getElementById('currentDate').textContent = `Date: ${currentDate.toLocaleDateString()}`;
+	document.getElementById('weatherIcon').src = `http://openweathermap.org/img/wn/${iconCode}.png`;
+	document.getElementById('temperature').textContent = `Temperature: ${temperature} °C`;
+	document.getElementById('humidity').textContent = `Humidity: ${humidity}%`;
+	document.getElementById('windSpeed').textContent = `Wind Speed: ${windSpeed} m/s`;
 }
 
-// Function to display 5-day forecast
+// Function to display 5-day forecast starting from tomorrow
 function displayForecast(data) {
+    // Clear existing forecast display
+    document.getElementById('forecast').innerHTML = '';
+
     // Extract necessary information from the API response
     const forecastList = data.list;
-  
-    // Clear previous forecast data
-    document.getElementById('forecast').innerHTML = '';
-  
-    // Initialize an object to store forecast data for each day
-    const dailyForecasts = {};
-  
+
     // Get tomorrow's date
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1); // Increment date by 1 to get tomorrow
-    tomorrow.setHours(0, 0, 0, 0); // Set time to start of day (midnight)
-  
-    // Group forecast data by day, starting from tomorrow
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0); // Set time to midnight
+
+    // Initialize an array to store forecast chunks
+    const forecastChunks = [];
+
+    // Group forecast data by date and keep only one entry per day
     forecastList.forEach(forecastData => {
-      // Extract forecast date
         const forecastDate = new Date(forecastData.dt * 1000);
-      
-      // Skip the current day
-        if (forecastDate.getTime() < tomorrow.getTime()) {
-            return;
-        }
-  
-      const dayKey = forecastDate.toDateString(); // Use date string as key
-  
-      // If forecast for this day does not exist, add it to the dailyForecasts object
-        if (!dailyForecasts[dayKey]) {
-            dailyForecasts[dayKey] = forecastData;
+        forecastDate.setHours(0, 0, 0, 0); // Set time to midnight
+
+        // Exclude today's forecast and past forecasts
+        if (forecastDate >= tomorrow && forecastChunks.length < 5) {
+            const existingDate = forecastChunks.find(chunk => {
+                const chunkDate = new Date(chunk.dt * 1000);
+                return chunkDate.toDateString() === forecastDate.toDateString();
+            });
+            if (!existingDate) {
+                forecastChunks.push(forecastData);
+            }
         }
     });
-  
-    // Display forecast information for each day
-    Object.values(dailyForecasts).forEach(forecastData => {
-        const forecastDate = new Date(forecastData.dt * 1000);
-        const iconCode = forecastData.weather[0].icon;
-        const temperature = forecastData.main.temp;
-        const humidity = forecastData.main.humidity;
-        const windSpeed = forecastData.wind.speed;
-    
-        // Create HTML elements for forecast data
-        const forecastItem = document.createElement('div');
-        forecastItem.classList.add('forecast-item');
-        forecastItem.innerHTML = `
-            <div>${forecastDate.toLocaleDateString()}</div>
-            <img src="http://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
-            <div>Temperature: ${temperature} °C</div>
-            <div>Humidity: ${humidity}%</div>
-            <div>Wind Speed: ${windSpeed} m/s</div>
-        `;
-    
-        // Append forecast item to the forecast container
-        document.getElementById('forecast').appendChild(forecastItem);
+
+    // Display forecast information for each date
+    forecastChunks.forEach(forecastData => {
+        displayForecastInfo(forecastData);
     });
 }
-  
-  
-  
 
+// Function to display forecast information
+function displayForecastInfo(forecastData) {
+	// Extract forecast information from the forecast data point
+	const forecastDate = new Date(forecastData.dt * 1000);
+	const iconCode = forecastData.weather[0].icon;
+	const temperature = forecastData.main.temp;
+	const humidity = forecastData.main.humidity;
+	const windSpeed = forecastData.wind.speed;
 
-// Event listener for search form submission
-document.getElementById('searchForm').addEventListener('submit', function(event) {
-	event.preventDefault();
-	const city = document.getElementById('cityInput').value.trim();
-	if (city) {
-		fetchWeather(city);
-		// Store the searched city in local storage
-		saveToLocalStorage(city);
+	// Display forecast information
+	// You can customize this part to display the information as you want
+	document.getElementById('forecast').innerHTML += `
+    <div class="forecast-item">
+        <h3>Date: ${forecastDate.toLocaleDateString()}</h3>
+        <img src="http://openweathermap.org/img/wn/${iconCode}.png" alt="Weather Icon">
+        <p>Temperature: ${temperature} °C</p>
+        <p>Humidity: ${humidity}%</p>
+        <p>Wind Speed: ${windSpeed} m/s</p>
+    </div>
+  `;
+}
+
+// Function to save search history
+function saveSearchHistoryList(city) {
+	const searchHistoryList = JSON.parse(localStorage.getItem('searchHistory')) || [];
+	if (!searchHistoryList.includes(city)) {
+		searchHistoryList.push(city);
+		localStorage.setItem('searchHistory', JSON.stringify(searchHistoryList));
+		displaySearchHistory(searchHistoryList);
 	}
-});
-
-// Function to save searched city to local storage
-function saveToLocalStorage(city) {
-	// Retrieve existing search history from local storage
-	let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
-	// Add new city to search history
-	searchHistory.push(city);
-	// Save updated search history to local storage
-	localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
 }
 
 // Function to display search history
-function displaySearchHistory() {
-	// Retrieve search history from local storage
-	const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
-	
+function displaySearchHistory(history) {
+	const searchHistoryList = document.getElementById('searchHistoryList');
+	searchHistoryList.innerHTML = '';
+	history.forEach(city => {
+		const li = document.createElement('li');
+		li.textContent = city;
+		li.addEventListener('click', () => {
+			fetchWeather(city);
+		});
+		searchHistoryList.appendChild(li);
+	});
 }
 
-// Event listener for clicking on a city in the search history
-document.getElementById('searchHistory').addEventListener('click', function(event) {
-	if (event.target.tagName === 'BUTTON') {
-		const city = event.target.textContent;
+// Event listener for the search form submission
+document.getElementById('searchForm').addEventListener('submit', function (event) {
+	event.preventDefault();
+	const cityInput = document.getElementById('cityInput');
+	const city = cityInput.value.trim();
+	if (city) {
 		fetchWeather(city);
+		cityInput.value = '';
 	}
 });
 
-// Load search history when the page loads
-window.addEventListener('load', function() {
-	displaySearchHistory();
+// Display search history on page load
+window.addEventListener('load', function () {
+	const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+	displaySearchHistory(searchHistory);
 });
+
