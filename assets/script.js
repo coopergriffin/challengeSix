@@ -1,3 +1,5 @@
+//Cooper Griffin 
+
 // Function to fetch weather data from OpenWeatherMap API
 // Define the API key constant
 const apiKey = '9f2c585f02b8861898b85f73dc78bc2d';
